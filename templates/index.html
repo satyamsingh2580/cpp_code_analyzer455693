@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALGO // COCKPIT — Algorithm &amp; Code Optimizer</title>
+  
+  <!-- Modern Monospace & UI Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════════
+       1. DESIGN SYSTEM & COCKPIT VARIABLES
+       ═══════════════════════════════════════════════════════════════════════ */
+    @property --bg-edge {
+      syntax: '<color>';
+      inherits: true;
+      initial-value: #050507;
+    }
+
+    :root {
+      --bg-center: #1e1e1e; /* Dark slate workspace center */
+      --bg-edge: #050507;   /* Default pitch-black edge */
+      /* Base & Elevation Layer (Charcoal & Elevated Gray) */
+      --bg-base: #1A1A1A;
+      --bg-panel: rgba(35, 35, 40, 0.65);
+      --bg-editor: #1E1E1E;
+      --border-panel: rgba(255, 255, 255, 0.08);
+      --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      --radius-std: 8px;
+
+      /* Typography Palette (LeetCode / VS Code Grade) */
+      --text-primary: #D4D4D4;
+      --text-secondary: #A6A6A6;
+
+      /* Accent & HUD Colors */
+      --cyan-bright: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.25);
+      --blue-accent: #0284c7;
+
+      /* Dynamic Theme 1: OPTIMAL / BEST PERFORMANCE (Green to Pitch Black) */
+      --green-grad: linear-gradient(135deg, rgba(8, 38, 20, 0.88) 0%, rgba(4, 19, 10, 0.95) 55%, #030805 100%);
+      --green-border: rgba(16, 185, 129, 0.45);
+      --green-glow: 0 10px 35px -5px rgba(16, 185, 129, 0.22);
+      --green-accent: #10b981;
+      --green-text: #34d399;
+
+      /* Dynamic Theme 2: SUBOPTIMAL / BOTTLENECK (Crimson to Pitch Black) */
+      --red-grad: linear-gradient(135deg, rgba(62, 13, 20, 0.90) 0%, rgba(28, 6, 9, 0.96) 55%, #080203 100%);
+      --red-border: rgba(239, 68, 68, 0.45);
+      --red-glow: 0 10px 35px -5px rgba(239, 68, 68, 0.22);
+      --red-accent: #ef4444;
+      --red-text: #f87171;
+
+      /* Dynamic Theme 3: ALTERNATIVE / AI OPTIMIZATION (Midnight Blue to Pitch Black) */
+      --blue-grad: linear-gradient(135deg, rgba(14, 34, 68, 0.90) 0%, rgba(7, 16, 32, 0.96) 55%, #02050b 100%);
+      --blue-border: rgba(56, 189, 248, 0.45);
+      --blue-glow: 0 10px 35px -5px rgba(56, 189, 248, 0.22);
+      --blue-text: #38bdf8;
+
+      /* Typography */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at center, var(--bg-center) 0%, var(--bg-edge) 100%);
+      background-attachment: fixed;
+      transition: background 0.8s ease-in-out, --bg-edge 0.8s ease-in-out;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Dynamic Ambient Edge Themes */
+    body.theme-hard { --bg-edge: #3a0a0a; }   /* Deep Red Edge */
+    body.theme-medium { --bg-edge: #3a1c02; } /* Deep Orange Edge */
+    body.theme-easy { --bg-edge: #2b2805; }   /* Deep Yellow Edge */
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       2. COCKPIT HEADER / HUD TELEMETRY BAR
+       ═══════════════════════════════════════════════════════════════════════ */
+    header.cockpit-hud {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(26, 26, 30, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-panel);
+      padding: 0.85rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-panel);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .hud-glyph {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      box-shadow: 0 0 18px rgba(2, 132, 199, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-text h1 span.tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 600;
+      background: rgba(14, 165, 233, 0.15);
+      color: var(--cyan-bright);
+      padding: 0.18rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid rgba(14, 165, 233, 0.3);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      letter-spacing: 0.2px;
+    }
+
+    .telemetry-status {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .telemetry-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.7rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 6px;
+      color: #cbd5e1;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green-accent);
+      box-shadow: 0 0 8px var(--green-accent);
+      animation: pulse-ring 2s infinite;
+    }
+    @keyframes pulse-ring {
+      0% { opacity: 0.6; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.6; transform: scale(0.9); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       3. SPLIT-SCREEN COCKPIT LAYOUT
+       ═══════════════════════════════════════════════════════════════════════ */
+    .cockpit-viewport {
+      flex: 1;
+      width: 100%;
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 1.75rem 2rem;
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      gap: 1.75rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1080px) {
+      .cockpit-viewport {
+        grid-template-columns: 1fr;
+        padding: 1.25rem 1rem;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       4. LEFT COLUMN: DEVELOPER INPUT COCKPIT
+       ═══════════════════════════════════════════════════════════════════════ */
+    .cockpit-panel {
+      background: rgba(35, 35, 40, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-std);
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .panel-title {
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--cyan-bright);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .presets-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-label {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      color: #64748b;
+      text-transform: uppercase;
+    }
+
+    .preset-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      padding: 0.25rem 0.65rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn:hover {
+      background: rgba(14, 165, 233, 0.15);
+      border-color: rgba(14, 165, 233, 0.35);
+      color: #e0f2fe;
+      transform: translateY(-1px);
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .section-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .section-meta span.indicator {
+      color: var(--cyan-bright);
+    }
+
+    .editor-wrapper {
+      position: relative;
+      background: var(--bg-editor);
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-std);
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .editor-wrapper:focus-within {
+      border-color: var(--cyan-bright);
+      box-shadow: 0 0 20px -3px rgba(56, 189, 248, 0.25);
+    }
+
+    .editor-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.85rem;
+      background: rgba(255, 255, 255, 0.025);
+      border-bottom: 1px solid var(--border-panel);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+    }
+
+    .editor-dots {
+      display: flex;
+      gap: 5px;
+    }
+    .editor-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    textarea {
+      width: 100%;
+      background: transparent;
+      color: #f1f5f9;
+      border: none;
+      padding: 0.9rem;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.6;
+      resize: vertical;
+      tab-size: 4;
+    }
+    textarea:focus {
+      outline: none;
+    }
+
+    #problemDesc {
+      min-height: 110px;
+    }
+
+    #userCode {
+      min-height: 280px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       5. PRIMARY ACTION BUTTON & COCKPIT PULSE
+       ═══════════════════════════════════════════════════════════════════════ */
+    .action-row {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    #analyzeBtn {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #0f172a 100%);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 0.95rem 1.8rem;
+      border-radius: 9px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 20px -2px rgba(2, 132, 199, 0.4);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #analyzeBtn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #38bdf8 100%);
+      box-shadow: 0 6px 28px rgba(56, 189, 248, 0.45);
+      transform: translateY(-2px);
+    }
+
+    #analyzeBtn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    #analyzeBtn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(40%);
+    }
+
+    /* Cascade status pill in left bar */
+    .cascade-pill {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.55rem 0.85rem;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 7px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #94a3b8;
+    }
+
+    .cascade-step-indicators {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .step-badge {
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.65rem;
+      color: #94a3b8;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       6. RIGHT COLUMN: DYNAMIC RESULTS COCKPIT
+       ═══════════════════════════════════════════════════════════════════════ */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* Placeholder State */
+    .empty-cockpit {
+      background: rgba(35, 35, 40, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-std);
+      padding: 4.5rem 2rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .radar-grid {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px dashed rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      position: relative;
+      animation: radar-spin 10s linear infinite;
+    }
+    @keyframes radar-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .empty-cockpit h3 {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+    }
+
+    .empty-cockpit p {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    /* Pulse/Loading Animation Component */
+    .spinner-wrapper {
+      display: none;
+      background: rgba(35, 35, 40, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-std);
+      padding: 3rem 2rem;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    }
+    .spinner-wrapper.active {
+      display: flex;
+    }
+
+    .scanner-orb {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scanner-orb::before, .scanner-orb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--cyan-bright);
+      animation: spin-scan 1s cubic-bezier(0.68, -0.55, 0.27, 1.55) infinite;
+    }
+    .scanner-orb::after {
+      border-top-color: var(--green-accent);
+      animation: spin-scan 1.6s linear infinite reverse;
+    }
+    @keyframes spin-scan {
+      to { transform: rotate(360deg); }
+    }
+
+    .pulse-text {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--cyan-bright);
+      animation: text-glow 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes text-glow {
+      from { opacity: 0.7; }
+      to { opacity: 1; text-shadow: 0 0 12px var(--cyan-bright); }
+    }
+
+    .cascade-probe-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      text-align: left;
+      width: 100%;
+      max-width: 380px;
+      padding: 0.8rem 1.2rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cascade-probe-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Error Notification Card */
+    .error-card {
+      display: none;
+      backdrop-filter: blur(14px);
+      background: var(--red-grad);
+      border: 1px solid var(--red-border);
+      box-shadow: var(--red-glow);
+      border-radius: 12px;
+      padding: 1.15rem 1.4rem;
+      color: #fecaca;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      line-height: 1.6;
+      animation: slide-in 0.3s ease-out;
+    }
+    .error-card.visible {
+      display: block;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       7. DYNAMIC THEMED RESULT CARDS (GREEN, RED, BLUE with blackish gradients)
+       ═══════════════════════════════════════════════════════════════════════ */
+    #results {
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+      animation: slide-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #results.visible {
+      display: flex;
+    }
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Telemetry Complexity HUD Badges */
+    .badge-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .cockpit-metric-card {
+      background: #202020;
+      border: 1px solid var(--border-panel);
+      box-shadow: var(--shadow-panel);
+      border-radius: var(--radius-std);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .cockpit-metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--cyan-bright);
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .metric-value {
+      font-family: var(--font-mono);
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--cyan-bright);
+      text-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+      letter-spacing: -0.5px;
+    }
+
+    /* Dynamic Result Card Base */
+    .result-card {
+      position: relative;
+      border-radius: var(--radius-std);
+      padding: 1.25rem 1.4rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .card-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .card-heading {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-badge {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    /* ─── THEME 1: OPTIMAL / BEST PERFORMANCE RESULT CARD (DARK GREEN TO PITCH BLACK) ─── */
+    .theme-optimal {
+      background: var(--green-grad);
+      border: 1px solid var(--green-border);
+      box-shadow: var(--green-glow);
+    }
+    .theme-optimal .card-heading {
+      color: var(--green-text);
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+    }
+    .theme-optimal .card-badge {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #6ee7b7;
+    }
+
+    /* ─── THEME 2: SUBOPTIMAL / BOTTLENECK RESULT CARD (CRIMSON RED TO PITCH BLACK) ─── */
+    .theme-suboptimal {
+      background: var(--red-grad);
+      border: 1px solid var(--red-border);
+      box-shadow: var(--red-glow);
+    }
+    .theme-suboptimal .card-heading {
+      color: var(--red-text);
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
+    }
+    .theme-suboptimal .card-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.45);
+      color: #fca5a5;
+    }
+
+    /* ─── THEME 3: ALTERNATIVE / AI OPTIMIZATION CARD (MIDNIGHT BLUE TO PITCH BLACK) ─── */
+    .theme-ai-opt {
+      background: var(--blue-grad);
+      border: 1px solid var(--blue-border);
+      box-shadow: var(--blue-glow);
+    }
+    .theme-ai-opt .card-heading {
+      color: var(--blue-text);
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+    }
+    .theme-ai-opt .card-badge {
+      background: rgba(2, 132, 199, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #7dd3fc;
+    }
+
+    /* Inefficiencies List */
+    .inefficiency-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .inefficiency-list li {
+      font-size: 0.86rem;
+      line-height: 1.55;
+      padding: 0.55rem 0.85rem;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 7px;
+      border-left: 3px solid var(--red-accent);
+      color: #f1f5f9;
+    }
+    .inefficiency-list li.clean {
+      border-left-color: var(--green-accent);
+      color: #a7f3d0;
+    }
+
+    /* Code Viewport with Copy Action */
+    .code-viewport {
+      position: relative;
+      background: #141414;
+      border: 1px solid var(--border-panel);
+      border-radius: var(--radius-std);
+      overflow: hidden;
+    }
+
+    .code-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.45rem 0.85rem;
+      background: rgba(255, 255, 255, 0.025);
+      border-bottom: 1px solid var(--border-panel);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+    }
+
+    .copy-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #6ee7b7;
+}
+
+/* Clear button styling */
+.clear-btn {
+  background: transparent;
+  border: none;
+  color: #A6A6A6;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.clear-btn:hover {
+  color: #ef4444;
+}
+      background: rgba(16, 185, 129, 0.2);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+
+    pre {
+      padding: 1.15rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      white-space: pre-wrap !important;
+      word-break: break-word;
+    }
+
+    code, #optimalCode {
+      font-family: var(--font-mono);
+      color: #ecfdf5;
+      white-space: pre-wrap !important;
+      word-break: break-all !important;
+      display: block !important;
+    }
+
+    /* Explanation Prose */
+    .explanation-text {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text-primary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════
+       8. FOOTER STATUS TELEMETRY
+       ═══════════════════════════════════════════════════════════════════════ */
+    footer.cockpit-footer {
+      width: 100%;
+      padding: 1rem 2rem;
+      background: rgba(26, 26, 30, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border-panel);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .cascade-flow {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-secondary);
+    }
+    .flow-sep {
+      color: var(--cyan-bright);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       COCKPIT HUD TOPBAR
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <header class="cockpit-hud">
+    <div class="brand-section">
+      <div class="hud-glyph">&lt;/&gt;</div>
+      <div class="brand-text">
+        <h1>ALGO // COCKPIT <span class="tag">PROD v2.4</span></h1>
+        <p>Autonomous LeetCode Evaluation &amp; Algorithmic Optimization Architecture</p>
+      </div>
+    </div>
+    <div class="telemetry-status">
+      <div class="telemetry-chip">
+        <div class="pulse-dot"></div>
+        <span>MULTI-TIER CASCADE ACTIVE</span>
+      </div>
+      <div class="telemetry-chip">
+        <span>ENGINE: C++17 / O3</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SPLIT-SCREEN COCKPIT VIEWPORT
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <main class="cockpit-viewport">
+
+    <!-- ── LEFT COLUMN: INPUT CONTROLS & EDITOR ─────────────────────── -->
+    <div class="cockpit-panel">
+      
+      <!-- Panel Header & Presets -->
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>⚡</span> Code Telemetry Input
+        </div>
+        <div class="presets-row">
+          <span class="preset-label">Preload:</span>
+          <button class="preset-btn" onclick="loadSample('twosum')">Two Sum (O(N²))</button>
+          <button class="preset-btn" onclick="loadSample('even')">Parity Check</button>
+          <button class="preset-btn" onclick="loadSample('fib')">Fibonacci</button>
+        </div>
+      </div>
+
+      <!-- Problem Description -->
+      <div class="input-section">
+        <div class="section-meta">
+          <span>01 // Problem Specification</span>
+          <span class="indicator" id="descCharCount">0 chars</span>
+          <button class="clear-btn" id="clearDescBtn" title="Clear Problem Specification">✖</button>
+        </div>
+        <div class="editor-wrapper">
+          <div class="editor-bar">
+            <div class="editor-dots">
+              <div class="editor-dot"></div>
+              <div class="editor-dot"></div>
+              <div class="editor-dot"></div>
+            </div>
+            <span>spec.markdown</span>
+          </div>
+          <textarea id="problemDesc" placeholder="Paste LeetCode or competitive programming problem statement here..."></textarea>
+        </div>
+      </div>
+
+      <!-- User C++ Code -->
+      <div class="input-section">
+        <div class="section-meta">
+          <span>02 // User C++ Implementation</span>
+          <span class="indicator" id="codeLineCount">0 lines</span>
+          <button class="clear-btn" id="clearCodeBtn" title="Clear User C++ Implementation">✖</button>
+        </div>
+        <div class="editor-wrapper">
+          <div class="editor-bar">
+            <div class="editor-dots">
+              <div class="editor-dot"></div>
+              <div class="editor-dot"></div>
+              <div class="editor-dot"></div>
+            </div>
+            <span>solution.cpp [ISO C++17]</span>
+          </div>
+          <textarea id="userCode" spellcheck="false" placeholder="#include <bits/stdc++.h>&#10;using namespace std;&#10;&#10;class Solution {&#10;public:&#10;    // Paste your C++ code here...&#10;};"></textarea>
+        </div>
+      </div>
+
+      <!-- Action Button & Telemetry -->
+      <div class="action-row">
+        <button id="analyzeBtn">
+          <span>⚡</span>
+          <span>Execute Multi-Tier Optimization</span>
+        </button>
+
+        <div class="cascade-pill">
+          <span>Cascade Pipeline:</span>
+          <div class="cascade-step-indicators">
+            <span class="step-badge">1: Gemini</span>
+            <span class="step-badge">2: GPT-4o</span>
+            <span class="step-badge">3: Groq</span>
+            <span class="step-badge">4: OpenRouter</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN: DYNAMIC RESULTS COCKPIT ────────────────────── -->
+    <div class="results-container">
+
+      <!-- 1. Empty State (Cockpit Ready) -->
+      <div class="empty-cockpit" id="emptyState">
+        <div class="radar-grid">🎯</div>
+        <h3>Telemetry System Idle</h3>
+        <p>Enter your problem statement and C++ code on the left console, then click <strong>Execute Multi-Tier Optimization</strong> to analyze Big-O complexity and generate an optimal solution.</p>
+      </div>
+
+      <!-- 2. Active Pulse / Loading State -->
+      <div class="spinner-wrapper" id="spinner">
+        <div class="scanner-orb">
+          <span style="font-size: 1.3rem;">⚡</span>
+        </div>
+        <div class="pulse-text">EXECUTING MULTI-TIER AI INFERENCE...</div>
+        <div class="cascade-probe-list">
+          <div class="cascade-probe-item"><span>›</span> Probing Primary Tier (Gemini 2.5 Flash)...</div>
+          <div class="cascade-probe-item"><span>›</span> Armed Secondary Tier (GitHub Models GPT-4o)...</div>
+          <div class="cascade-probe-item"><span>›</span> Armed Tertiary Tier (Groq Llama 3.1)...</div>
+          <div class="cascade-probe-item"><span>›</span> Armed Quaternary Tier (OpenRouter)...</div>
+        </div>
+      </div>
+
+      <!-- 3. Error Card -->
+      <div class="error-card" id="errorCard"></div>
+
+      <!-- 4. Dynamic Results Grid -->
+      <div id="results">
+
+        <!-- Complexity HUD Metrics -->
+        <div class="badge-row">
+          <div class="cockpit-metric-card">
+            <div class="metric-label">
+              <span>⏱</span> Algorithmic Time Complexity
+            </div>
+            <div class="metric-value" id="timeComplexity">—</div>
+          </div>
+          <div class="cockpit-metric-card">
+            <div class="metric-label">
+              <span>💾</span> Auxiliary Space Complexity
+            </div>
+            <div class="metric-value" id="spaceComplexity">—</div>
+          </div>
+        </div>
+
+        <!-- Dynamic Card 1: Inefficiencies & Bottlenecks (Deep Red to Black) -->
+        <div class="result-card theme-suboptimal" id="cardInefficiencies">
+          <div class="card-topbar">
+            <div class="card-heading">
+              <span>⚠</span> Bottleneck &amp; Inefficiency Telemetry
+            </div>
+            <span class="card-badge" id="bottleneckBadge">DIAGNOSTIC REPORT</span>
+          </div>
+          <ul class="inefficiency-list" id="inefficiencies"></ul>
+        </div>
+
+        <!-- Dynamic Card 2: Optimal C++ Solution (Deep Green to Black) -->
+        <div class="result-card theme-optimal" id="cardOptimalCode">
+          <div class="card-topbar">
+            <div class="card-heading">
+              <span>★</span> Optimal Production-Ready C++ Solution
+            </div>
+            <span class="card-badge">PEAK PERFORMANCE</span>
+          </div>
+          <div class="code-viewport">
+            <div class="code-toolbar">
+              <span>optimal_solution.cpp &middot; C++17 O(1) / O(N) optimized</span>
+              <button class="copy-btn" id="copyCodeBtn" onclick="copyOptimalCode()">📋 Copy Code</button>
+            </div>
+            <pre><code id="optimalCode"></code></pre>
+          </div>
+        </div>
+
+        <!-- Dynamic Card 3: Deep Architectural Explanation (Midnight Blue to Black) -->
+        <div class="result-card theme-ai-opt" id="cardExplanation">
+          <div class="card-topbar">
+            <div class="card-heading">
+              <span>✦</span> AI Architectural Analysis &amp; Optimizations
+            </div>
+            <span class="card-badge">SYSTEM ARCHITECTURE</span>
+          </div>
+          <p class="explanation-text" id="explanation"></p>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       COCKPIT FOOTER STATUS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <footer class="cockpit-footer">
+    <div class="cascade-flow">
+      <span>Cascading Architecture:</span>
+      <span>Gemini 2.5 Flash</span>
+      <span class="flow-sep">&rarr;</span>
+      <span>GitHub Models (GPT-4o)</span>
+      <span class="flow-sep">&rarr;</span>
+      <span>Groq</span>
+      <span class="flow-sep">&rarr;</span>
+      <span>OpenRouter</span>
+    </div>
+    <div>ALGORITHM &amp; CODE OPTIMIZER &middot; PRODUCTION COCKPIT</div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SCRIPT LOGIC & INTERACTION
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <script>
+    const btn        = document.getElementById('analyzeBtn');
+    const spinner    = document.getElementById('spinner');
+    const results    = document.getElementById('results');
+    const emptyState = document.getElementById('emptyState');
+    const errorCard  = document.getElementById('errorCard');
+
+    const descInput  = document.getElementById('problemDesc');
+    const codeInput  = document.getElementById('userCode');
+
+    // Live telemetry counters
+    descInput.addEventListener('input', () => {
+      document.getElementById('descCharCount').textContent = `${descInput.value.length} chars`;
+    });
+    codeInput.addEventListener('input', () => {
+      const lines = codeInput.value ? codeInput.value.split('\n').length : 0;
+      document.getElementById('codeLineCount').textContent = `${lines} lines`;
+
+  // Clear button handlers
+  const clearDescBtn = document.getElementById('clearDescBtn');
+  if (clearDescBtn) {
+    clearDescBtn.addEventListener('click', () => {
+      descInput.value = '';
+      descInput.dispatchEvent(new Event('input'));
+    });
+  }
+  const clearCodeBtn = document.getElementById('clearCodeBtn');
+  if (clearCodeBtn) {
+    clearCodeBtn.addEventListener('click', () => {
+      codeInput.value = '';
+      codeInput.dispatchEvent(new Event('input'));
+    });
+  }
+    });
+
+    // Sample pre-loaders for rapid testing
+    const SAMPLES = {
+      twosum: {
+        desc: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. Each input has exactly one solution, and you may not use the same element twice.",
+        code: `#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // O(N^2) brute-force\n        for (int i = 0; i < nums.size(); i++) {\n            for (int j = i + 1; j < nums.size(); j++) {\n                if (nums[i] + nums[j] == target) {\n                    return {i, j};\n                }\n            }\n        }\n        return {};\n    }\n};`
+      },
+      even: {
+        desc: "Determine if a 32-bit signed integer is even or odd.",
+        code: `bool isEven(int n) {\n    return (n % 2 == 0);\n}`
+      },
+      fib: {
+        desc: "Compute the N-th Fibonacci number where F(0)=0, F(1)=1, and F(n)=F(n-1)+F(n-2).",
+        code: `int fib(int n) {\n    if (n <= 1) return n;\n    return fib(n - 1) + fib(n - 2); // Exponential O(2^N)\n}`
+      }
+    };
+
+    function loadSample(key) {
+      if (!SAMPLES[key]) return;
+      descInput.value = SAMPLES[key].desc;
+      codeInput.value = SAMPLES[key].code;
+      descInput.dispatchEvent(new Event('input'));
+      codeInput.dispatchEvent(new Event('input'));
+    }
+
+    // Primary Execution Trigger
+    btn.addEventListener('click', async () => {
+      const problemDescription = descInput.value.trim();
+      const userCode           = codeInput.value.trim();
+
+      if (!problemDescription || !userCode) {
+        showError('Please provide both the Problem Description and your C++ Code before executing optimization.');
+        return;
+      }
+
+      // Reset state for execution
+      errorCard.classList.remove('visible');
+      results.classList.remove('visible');
+      emptyState.style.display = 'none';
+      btn.disabled = true;
+      spinner.classList.add('active');
+
+      try {
+        const res = await fetch('/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            problem_description: problemDescription,
+            user_code: userCode
+          })
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: 'Unknown server response error.' }));
+          throw new Error(err.error || err.detail || `Server returned HTTP status ${res.status}`);
+        }
+
+        const data = await res.json();
+        renderResults(data);
+
+      } catch (err) {
+        showError(err.message);
+        emptyState.style.display = 'flex';
+      } finally {
+        btn.disabled = false;
+        spinner.classList.remove('active');
+      }
+    });
+
+    // Render results into dynamic themed cards
+    function renderResults(data) {
+      // Reset existing ambient themes
+      document.body.classList.remove('theme-easy', 'theme-medium', 'theme-hard');
+
+      // Apply new ambient lighting based on payload
+      if (data.difficulty) {
+          let diffClass = 'theme-' + data.difficulty.toLowerCase().trim();
+          document.body.classList.add(diffClass);
+      }
+      document.getElementById('timeComplexity').textContent  = data.time_complexity  || '—';
+      document.getElementById('spaceComplexity').textContent = data.space_complexity || '—';
+
+      // ── 1. Inefficiencies / Bottlenecks (Dynamic Red to Black Theme) ──
+      const ul = document.getElementById('inefficiencies');
+      const cardIneff = document.getElementById('cardInefficiencies');
+      const badgeIneff = document.getElementById('bottleneckBadge');
+      ul.innerHTML = '';
+
+      let items = data.inefficiencies_found || [];
+      if (typeof items === 'string') {
+        items = [items];
+      }
+
+      if (items.length === 0) {
+        // If clean code with zero bottlenecks, transform card to optimal green
+        cardIneff.className = 'result-card theme-optimal';
+        badgeIneff.textContent = 'ZERO BOTTLENECKS';
+        const li = document.createElement('li');
+        li.className = 'clean';
+        li.textContent = '✓ No algorithmic or memory inefficiencies detected. Code exhibits optimal complexity.';
+        ul.appendChild(li);
+      } else {
+        // Highlight bottlenecks in deep red gradient
+        cardIneff.className = 'result-card theme-suboptimal';
+        badgeIneff.textContent = `${items.length} BOTTLENECK${items.length > 1 ? 'S' : ''} DETECTED`;
+        items.forEach(text => {
+          const li = document.createElement('li');
+          li.textContent = text;
+          ul.appendChild(li);
+        });
+      }
+
+      // ── 2. Optimal C++ Code (Dynamic Green to Pitch Black Theme) ──
+      const codeElement = document.getElementById('optimalCode');
+      const optimalCode = data.optimal_cpp_code || '// Optimal solution not available';
+      // 1. Catch any double-escaped newlines from the JSON payload
+      let rawCode = optimalCode.replace(/\\n/g, '\n');
+      // 2. Sanitize HTML, then explicitly convert newlines to <br> and double-spaces to &nbsp;
+      let formattedHTML = rawCode
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>')
+          .replace(/  /g, '&nbsp;&nbsp;');
+      // 3. Inject as pure HTML so the browser is forced to render the breaks
+      codeElement.innerHTML = formattedHTML;
+
+      // ── 3. Architectural Explanation (Dynamic Midnight Blue to Pitch Black Theme) ──
+      document.getElementById('explanation').textContent = data.explanation || 'Optimal architectural improvements implemented.';
+
+      results.classList.add('visible');
+    }
+
+    function showError(msg) {
+      errorCard.textContent = '❌ [EXECUTION HALTED] ' + msg;
+      errorCard.classList.add('visible');
+    }
+
+    // Copy to clipboard utility
+    function copyOptimalCode() {
+      const codeText = document.getElementById('optimalCode').textContent;
+      if (!codeText) return;
+      navigator.clipboard.writeText(codeText).then(() => {
+        const copyBtn = document.getElementById('copyCodeBtn');
+        copyBtn.textContent = '✓ Copied!';
+        setTimeout(() => {
+          copyBtn.textContent = '📋 Copy Code';
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
